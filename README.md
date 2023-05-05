@@ -4,7 +4,7 @@ The doc2.site CLI allows developers to build web experiences with <https://doc2.
 
 ## Installation
 
-Install the CLI as a global command. You need Node LTS or newer.
+Install the CLI as a global command. You need Node LTS (18.x) or newer.
 
 ```bash
 $ npm install -g @doc2site/cli
