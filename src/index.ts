@@ -14,16 +14,20 @@ import { fromParse5 } from "hast-util-from-parse5";
 import { parseFragment } from "parse5";
 import fs from "node:fs";
 import path from "node:path";
+import url from "node:url";
 import type { Element } from "hast";
+
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 dotenv.config();
 
-//add the following line
 const program = new Command();
 
 console.log(figlet.textSync("doc2.site CLI"));
 
-const { version } = JSON.parse(fs.readFileSync("./package.json").toString());
+const { version } = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "../package.json")).toString()
+);
 
 program
   .version(version)
