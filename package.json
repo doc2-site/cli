@@ -1,6 +1,6 @@
 {
   "name": "@doc2site/cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The doc2.site CLI allows developers to build web experiences with https://doc2.site",
   "main": "dist/index.js",
   "bin": {
