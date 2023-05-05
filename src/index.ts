@@ -23,8 +23,10 @@ const program = new Command();
 
 console.log(figlet.textSync("doc2.site CLI"));
 
+const { version } = JSON.parse(fs.readFileSync("./package.json").toString());
+
 program
-  .version("1.0.0")
+  .version(version)
   .description(
     "The doc2.site CLI allows developers to build web experiences with https://doc2.site"
   )
