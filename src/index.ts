@@ -71,37 +71,6 @@ program
 
                 const tree = html2hast(html);
 
-                // Handle index.json
-                // Read JSON
-                const indexPath = path.join(cwd, "./index.json");
-
-                if (fs.existsSync(indexPath)) {
-                  const index = JSON.parse(
-                    fs.readFileSync(indexPath).toString()
-                  );
-
-                  for (const query of index) {
-                    if (query.select) {
-                      Object.keys(query.select).forEach((selector) => {
-                        const el = select(selector, tree);
-                        if (el) {
-                          const props = query.select[selector];
-                          el.properties = { ...el.properties, ...props };
-                        }
-                      });
-                    }
-
-                    if (query.selectAll) {
-                      Object.keys(query.selectAll).forEach((selector) => {
-                        selectAll(selector, tree).forEach((el) => {
-                          const props = query.selectAll[selector];
-                          el.properties = { ...el.properties, ...props };
-                        });
-                      });
-                    }
-                  }
-                }
-
                 // Read head
                 const head = select("head", tree);
                 if (head) {
@@ -123,6 +92,36 @@ program
                       ...newHead.children,
                       ...scripts,
                     ];
+                  }
+                }
+
+                // Handle index.json
+                const indexPath = path.join(cwd, "./index.json");
+
+                if (fs.existsSync(indexPath)) {
+                  const index = JSON.parse(
+                      fs.readFileSync(indexPath).toString()
+                  );
+
+                  for (const query of index) {
+                    if (query.select) {
+                      Object.keys(query.select).forEach((selector) => {
+                        const el = select(selector, tree);
+                        if (el) {
+                          const props = query.select[selector];
+                          el.properties = { ...el.properties, ...props };
+                        }
+                      });
+                    }
+
+                    if (query.selectAll) {
+                      Object.keys(query.selectAll).forEach((selector) => {
+                        selectAll(selector, tree).forEach((el) => {
+                          const props = query.selectAll[selector];
+                          el.properties = { ...el.properties, ...props };
+                        });
+                      });
+                    }
                   }
                 }
 
