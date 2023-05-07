@@ -95,36 +95,6 @@ program
                   }
                 }
 
-                // Handle index.json
-                const indexPath = path.join(cwd, "./index.json");
-
-                if (fs.existsSync(indexPath)) {
-                  const index = JSON.parse(
-                      fs.readFileSync(indexPath).toString()
-                  );
-
-                  for (const query of index) {
-                    if (query.select) {
-                      Object.keys(query.select).forEach((selector) => {
-                        const el = select(selector, tree);
-                        if (el) {
-                          const props = query.select[selector];
-                          el.properties = { ...el.properties, ...props };
-                        }
-                      });
-                    }
-
-                    if (query.selectAll) {
-                      Object.keys(query.selectAll).forEach((selector) => {
-                        selectAll(selector, tree).forEach((el) => {
-                          const props = query.selectAll[selector];
-                          el.properties = { ...el.properties, ...props };
-                        });
-                      });
-                    }
-                  }
-                }
-
                 // Handle components
                 const componentHeader = proxyRes.headers["x-components"];
                 if (componentHeader) {
@@ -154,47 +124,6 @@ program
                       webComponent.tagName
                     );
 
-                    // Read JSON
-                    const indexPath = path.join(
-                      cwd,
-                      "./components",
-                      name,
-                      `${name}.json`
-                    );
-
-                    if (fs.existsSync(indexPath)) {
-                      const index = JSON.parse(
-                        fs.readFileSync(indexPath).toString()
-                      );
-
-                      for (const query of index) {
-                        if (query.select) {
-                          Object.keys(query.select).forEach((selector) => {
-                            const el = select(
-                              selector.replace(":host", webComponent.tagName),
-                              tree
-                            );
-                            if (el) {
-                              const props = query.select[selector];
-                              el.properties = { ...el.properties, ...props };
-                            }
-                          });
-                        }
-
-                        if (query.selectAll) {
-                          Object.keys(query.selectAll).forEach((selector) => {
-                            selectAll(
-                              selector.replace(":host", webComponent.tagName),
-                              tree
-                            ).forEach((el) => {
-                              const props = query.selectAll[selector];
-                              el.properties = { ...el.properties, ...props };
-                            });
-                          });
-                        }
-                      }
-                    }
-
                     // Read template
                     const templatePath = path.join(
                       cwd,
@@ -214,6 +143,36 @@ program
                       ];
                     }
                   });
+                }
+
+                // Handle index.json last before returning the html
+                const indexPath = path.join(cwd, "./index.json");
+
+                if (fs.existsSync(indexPath)) {
+                  const index = JSON.parse(
+                    fs.readFileSync(indexPath).toString()
+                  );
+
+                  for (const query of index) {
+                    if (query.select) {
+                      Object.keys(query.select).forEach((selector) => {
+                        const el = select(selector, tree);
+                        if (el) {
+                          const props = query.select[selector];
+                          el.properties = { ...el.properties, ...props };
+                        }
+                      });
+                    }
+
+                    if (query.selectAll) {
+                      Object.keys(query.selectAll).forEach((selector) => {
+                        selectAll(selector, tree).forEach((el) => {
+                          const props = query.selectAll[selector];
+                          el.properties = { ...el.properties, ...props };
+                        });
+                      });
+                    }
+                  }
                 }
 
                 return `<!DOCTYPE html>${toHtml(tree)}`;
