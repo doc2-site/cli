@@ -1,49 +1,47 @@
-# doc2.site Command Line Interface (CLI)
+# doc2 Command Line Interface (CLI)
 
-The doc2.site CLI allows developers to build web experiences with <https://doc2.site>.
+The doc2 CLI allows developers to build web experiences with <https://doc2.site>.
 
 ## Installation
 
 Install the CLI as a global command. You need Node LTS (18.x) or newer.
 
 ```bash
-$ npm install -g @doc2site/cli
+$ npm install -g @doc2/cli
 ```
 
 ## Quick Start
 
 ```
-      _            ____        _ _          ____ _     ___
-   __| | ___   ___|___ \   ___(_) |_ ___   / ___| |   |_ _|
-  / _` |/ _ \ / __| __) | / __| | __/ _ \ | |   | |    | |
- | (_| | (_) | (__ / __/ _\__ \ | ||  __/ | |___| |___ | |
-  \__,_|\___/ \___|_____(_)___/_|\__\___|  \____|_____|___|
+      _            ____     ____ _     ___
+   __| | ___   ___|___ \   / ___| |   |_ _|
+  / _` |/ _ \ / __| __) | | |   | |    | |
+ | (_| | (_) | (__ / __/  | |___| |___ | |
+  \__,_|\___/ \___|_____|  \____|_____|___|
 
-Usage: doc2site [options] [command]
-
-The doc2.site CLI allows developers to build web experiences with https://doc2.site
+Usage: doc2 [options] [command]
 
 Options:
   -V, --version   output the version number
   -h, --help      display help for command
 
 Commands:
-  dev             Run a doc2.site development server
+  live --dev      Run a doc2.live development server
   help [command]  display help for command
 
 ```
 
 ## Environment
 
-Specify environment variables in the <doc2site-project> `.env` file:
+Specify environment variables in the <doc2-project> `.env` file:
 
 ```dotenv
-DOC2SITE_SUBDOMAIN=live-demo
+DOC2LIVE_SUBDOMAIN=live-demo
 ```
 
-## Starting development
+## Starting doc2.live development
 
 ```
-$ cd <doc2site-project>
-$ doc2site dev
+$ cd <doc2-project>
+$ doc2 live --dev
 ```

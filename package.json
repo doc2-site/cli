@@ -1,10 +1,10 @@
 {
-  "name": "@doc2site/cli",
-  "version": "1.0.3",
-  "description": "The doc2.site CLI allows developers to build web experiences with https://doc2.site",
+  "name": "@doc2/cli",
+  "version": "1.0.0",
+  "description": "The doc2 CLI allows developers to build web experiences with https://doc2.site",
   "main": "dist/index.js",
   "bin": {
-    "doc2site": "./dist/index.js"
+    "doc2": "./dist/index.js"
   },
   "scripts": {
     "build": "npx tsc"
@@ -12,6 +12,8 @@
   "repository": "https://github.com/doc2-site/cli",
   "keywords": [
     "doc2.site",
+    "doc2.live",
+    "doc2.email",
     "cli"
   ],
   "author": "doc2site-bot",
