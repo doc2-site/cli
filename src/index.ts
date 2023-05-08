@@ -57,6 +57,9 @@ program
               if (
                 String(proxyRes.headers["content-type"]).includes("text/html")
               ) {
+                // @ts-ignore
+                const url = `${proxyRes.req.protocol}://${proxyRes.req.host}${proxyRes.req.path}`;
+
                 const html2hast = (html: string) => {
                   const p5ast = parse(html, {
                     sourceCodeLocationInfo: false,
@@ -154,6 +157,13 @@ program
                   );
 
                   for (const query of index) {
+                    if (query.url) {
+                      const regExp = new RegExp(query.url);
+                      if (!regExp.test(url)) {
+                        continue;
+                      }
+                    }
+
                     if (query.select) {
                       Object.keys(query.select).forEach((selector) => {
                         const el = select(selector, tree);
