@@ -38,7 +38,7 @@ Specify environment variables in the <doc2-project> `.env` file:
 
 ```dotenv
 DOC2LIVE_SUBDOMAIN=live-demo
-DOC2EMAIL_SUBDOMAIN=email-examples
+DOC2EMAIL_SUBDOMAIN=email-demo
 ```
 
 ## Starting doc2.live development
