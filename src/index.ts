@@ -220,6 +220,56 @@ program
     }
   });
 
+program
+  .command("email")
+  .description("The doc2.email CLI")
+  .option("--dev", "Run a doc2.email development server")
+  .action((options) => {
+    if (options.dev) {
+      const start = performance.now();
+      try {
+        const subdomain = process.env.DOC2EMAIL_SUBDOMAIN;
+        if (!subdomain) {
+          throw new Error("Missing DOC2EMAIL_SUBDOMAIN env variable");
+        }
+
+        const app = express();
+        const port = 3000;
+        const host = `http://localhost:${port}`;
+
+        app.use(nocache());
+        app.use(express.static("."));
+        app.use(
+          "/",
+          proxy(`https://dev--${subdomain}.doc2.email`, {
+            proxyReqPathResolver: function (req) {
+              const { pathname, searchParams } = new URL(`${host}${req.url}`);
+
+              const indexPath = path.join(cwd, pathname, "index.json");
+              if (fs.existsSync(indexPath)) {
+                const index = JSON.parse(fs.readFileSync(indexPath).toString());
+                searchParams.set("index", JSON.stringify(index));
+              }
+
+              return `${pathname}?${searchParams.toString()}`;
+            },
+          })
+        );
+
+        app.listen(port);
+        const stop = performance.now();
+        consola.success(
+          `doc2.email server started in ${(stop - start).toFixed(2)}ms 🚀`
+        );
+        consola.info(host);
+      } catch (e) {
+        consola.error(e);
+      }
+    } else {
+      program.outputHelp();
+    }
+  });
+
 program.parse();
 
 if (!process.argv.slice(2).length) {

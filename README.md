@@ -27,6 +27,7 @@ Options:
 
 Commands:
   live --dev      Run a doc2.live development server
+  email --dev     Run a doc2.email development server
   help [command]  display help for command
 
 ```
@@ -37,6 +38,7 @@ Specify environment variables in the <doc2-project> `.env` file:
 
 ```dotenv
 DOC2LIVE_SUBDOMAIN=live-demo
+DOC2EMAIL_SUBDOMAIN=email-examples
 ```
 
 ## Starting doc2.live development
@@ -44,4 +46,11 @@ DOC2LIVE_SUBDOMAIN=live-demo
 ```
 $ cd <doc2-project>
 $ doc2 live --dev
+```
+
+## Starting doc2.email development
+
+```
+$ cd <doc2-project>
+$ doc2 email --dev
 ```
