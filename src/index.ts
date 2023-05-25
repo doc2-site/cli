@@ -14,6 +14,7 @@ import { fromParse5 } from "hast-util-from-parse5";
 import { parse } from "parse5";
 import fs from "node:fs";
 import path from "node:path";
+import fetch from "node-fetch";
 import type { Element } from "hast";
 
 const cwd = process.cwd();
@@ -53,12 +54,13 @@ program
         app.use(
           "/",
           proxy(`https://dev--${subdomain}.doc2.live`, {
-            userResDecorator: function (proxyRes, proxyResData) {
+            userResDecorator: async function (proxyRes, proxyResData) {
               if (
                 String(proxyRes.headers["content-type"]).includes("text/html")
               ) {
                 // @ts-ignore
-                const url = `${proxyRes.req.protocol}://${proxyRes.req.host}${proxyRes.req.path}`;
+                const url = `${proxyRes.req.protocol}//${proxyRes.req.host}${proxyRes.req.path}`;
+                const { pathname } = new URL(url);
 
                 const html2hast = (html: string) => {
                   const p5ast = parse(html, {
@@ -122,11 +124,12 @@ program
                       (component) => component.tagName === tagName
                     ) as { tagName: string; name: string };
 
-                  webComponents.forEach((webComponent: Element) => {
+                  const sheetResolvedReferences = {} as ResolvedReference;
+
+                  for (const webComponent of webComponents) {
                     const { name } = getComponentByTagName(
                       webComponent.tagName
                     );
-
                     // Read template
                     const templatePath = path.join(
                       cwd,
@@ -134,18 +137,116 @@ program
                       name,
                       `${name}.html`
                     );
-
                     if (fs.existsSync(templatePath)) {
                       const templateHtml = fs
                         .readFileSync(templatePath)
                         .toString();
-                      const templateElement = html2hast(templateHtml);
-                      webComponent.children = [
-                        ...templateElement.children,
-                        ...webComponent.children,
-                      ];
+
+                      const sheetLinks = selectAll(
+                        'p:has(a[href^="https://api.doc2.site/v1/spreadsheets/preview/"])',
+                        webComponent
+                      );
+                      const template = html2hast(templateHtml);
+
+                      if (sheetLinks.length) {
+                        for (const sheetLink of sheetLinks) {
+                          const link = select("a", sheetLink);
+                          const href = String(link!.properties!.href);
+
+                          const sheetId = new URL(href).pathname
+                              .split("/")
+                              .slice(4)
+                              .join("/");
+                          const sheetTemplate = select(
+                              `template[itemtype="urn:spreadsheet:${sheetId}"]`,
+                              template
+                          );
+
+                          if (!sheetTemplate) {
+                            continue;
+                          }
+
+                          const searchParams =
+                              sheetTemplate!.properties!.dataSearchParams ?? "";
+                          const sheetSource = `${href}${searchParams}`;
+
+                          if (!sheetResolvedReferences[sheetSource]) {
+                            const reference = await fetch(sheetSource);
+
+                            if (!reference.ok) {
+                              continue;
+                            }
+
+                            const resolvedReference =
+                              (await reference.json()) as Spreadsheet;
+
+                            if (!resolvedReference.rows) {
+                              continue;
+                            }
+
+                            sheetResolvedReferences[sheetSource] =
+                              resolvedReference;
+                          }
+
+                          let newChildren = [] as Array<Element>;
+                          // @ts-ignore
+                          sheetResolvedReferences[sheetSource].rows.forEach(
+                            (row: Array<{ [key: string]: string }>) => {
+                              const clone = JSON.parse(
+                                JSON.stringify(sheetTemplate)
+                              );
+
+                              Object.keys(row).forEach((key) => {
+                                selectAll(
+                                  `[itemprop=${key}]`,
+                                  clone.content
+                                ).forEach((el) => {
+                                  let isProp = false;
+                                  for (const name in el.properties) {
+                                    if (el.properties[name] === key) {
+                                      // @ts-ignore
+                                      el.properties[name] = row[key];
+                                      isProp = true;
+                                    }
+                                  }
+                                  if (!isProp) {
+                                    el.children = [
+                                      {
+                                        type: "text",
+                                        // @ts-ignore
+                                        value: row[key],
+                                      },
+                                    ];
+                                  }
+                                });
+                              });
+
+                              newChildren = [
+                                ...newChildren,
+                                ...clone.content.children,
+                              ];
+                            }
+                          );
+
+                          sheetLink.tagName = "div";
+                          sheetLink.properties = {
+                            dataSource: sheetSource,
+                          };
+                          sheetLink.children = newChildren;
+
+                          webComponent.children = [
+                            ...template.children,
+                            ...webComponent.children,
+                          ];
+                        }
+                      } else {
+                        webComponent.children = [
+                          ...template.children,
+                          ...webComponent.children,
+                        ];
+                      }
                     }
-                  });
+                  }
                 }
 
                 // Handle index.json last before returning the html
@@ -157,8 +258,12 @@ program
                   );
 
                   for (const query of index) {
-                    if (query.url) {
-                      const regExp = new RegExp(query.url);
+                    if (query.pathname && pathname !== query.pathname) {
+                      continue;
+                    }
+
+                    if (query.urlRegExp) {
+                      const regExp = new RegExp(query.urlRegExp);
                       if (!regExp.test(url)) {
                         continue;
                       }
