@@ -83,7 +83,9 @@ program
                   if (fs.existsSync(headPath)) {
                     const headHtml = fs.readFileSync(headPath).toString();
                     const scripts = head.children.filter(
-                      (el) => (el as Element).tagName === "script"
+                      (el) =>
+                        (el as Element).tagName === "script" ||
+                        (el as Element).tagName === "link"
                     );
                     const newHead = select(
                       "head",
@@ -92,7 +94,9 @@ program
 
                     head.children = [
                       ...head.children.filter(
-                        (el) => (el as Element).tagName !== "script"
+                        (el) =>
+                          (el as Element).tagName !== "script" &&
+                          (el as Element).tagName !== "link"
                       ),
                       ...newHead.children,
                       ...scripts,
@@ -154,12 +158,12 @@ program
                           const href = String(link!.properties!.href);
 
                           const sheetId = new URL(href).pathname
-                              .split("/")
-                              .slice(4)
-                              .join("/");
+                            .split("/")
+                            .slice(4)
+                            .join("/");
                           const sheetTemplate = select(
-                              `template[itemtype="urn:spreadsheet:${sheetId}"]`,
-                              template
+                            `template[itemtype="urn:spreadsheet:${sheetId}"]`,
+                            template
                           );
 
                           if (!sheetTemplate) {
@@ -167,7 +171,7 @@ program
                           }
 
                           const searchParams =
-                              sheetTemplate!.properties!.dataSearchParams ?? "";
+                            sheetTemplate!.properties!.dataSearchParams ?? "";
                           const sheetSource = `${href}${searchParams}`;
 
                           if (!sheetResolvedReferences[sheetSource]) {
