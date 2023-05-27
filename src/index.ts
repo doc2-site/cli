@@ -13,11 +13,13 @@ import { select, selectAll } from "hast-util-select";
 import { fromParse5 } from "hast-util-from-parse5";
 import { parse } from "parse5";
 import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 import path from "node:path";
 import fetch from "node-fetch";
 import type { Element, Properties } from "hast";
 
 const cwd = process.cwd();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 dotenv.config({ path: path.join(cwd, ".env") });
 
@@ -26,7 +28,7 @@ const program = new Command();
 console.log(figlet.textSync("doc2 CLI"));
 
 const { version } = JSON.parse(
-  fs.readFileSync(path.join(cwd, "package.json")).toString()
+  fs.readFileSync(path.join(__dirname, "..", "package.json")).toString()
 );
 
 const timeout = 2000;
