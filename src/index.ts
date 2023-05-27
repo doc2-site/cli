@@ -15,7 +15,7 @@ import { parse } from "parse5";
 import fs from "node:fs";
 import path from "node:path";
 import fetch from "node-fetch";
-import type { Element } from "hast";
+import type { Element, Properties } from "hast";
 
 const cwd = process.cwd();
 
@@ -260,9 +260,15 @@ program
                 const ssrPath = path.join(cwd, "./ssr.json");
 
                 if (fs.existsSync(ssrPath)) {
-                  const ssr = JSON.parse(
-                    fs.readFileSync(ssrPath).toString()
-                  );
+                  const ssr = JSON.parse(fs.readFileSync(ssrPath).toString());
+
+                  const applySSR = (el: Element, props: Properties) => {
+                    if (props.tagName) {
+                      el.tagName = String(props.tagName);
+                      props.tagName = undefined;
+                    }
+                    el.properties = { ...el.properties, ...props };
+                  };
 
                   for (const query of ssr) {
                     if (query.pathname && pathname !== query.pathname) {
@@ -280,8 +286,7 @@ program
                       Object.keys(query.select).forEach((selector) => {
                         const el = select(selector, tree);
                         if (el) {
-                          const props = query.select[selector];
-                          el.properties = { ...el.properties, ...props };
+                          applySSR(el, query.select[selector]);
                         }
                       });
                     }
@@ -289,8 +294,7 @@ program
                     if (query.selectAll) {
                       Object.keys(query.selectAll).forEach((selector) => {
                         selectAll(selector, tree).forEach((el) => {
-                          const props = query.selectAll[selector];
-                          el.properties = { ...el.properties, ...props };
+                          applySSR(el, query.selectAll[selector]);
                         });
                       });
                     }
