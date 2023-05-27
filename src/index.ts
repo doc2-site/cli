@@ -253,15 +253,15 @@ program
                   }
                 }
 
-                // Handle index.json last before returning the html
-                const indexPath = path.join(cwd, "./index.json");
+                // Handle ssr.json last before returning the html
+                const ssrPath = path.join(cwd, "./ssr.json");
 
-                if (fs.existsSync(indexPath)) {
-                  const index = JSON.parse(
-                    fs.readFileSync(indexPath).toString()
+                if (fs.existsSync(ssrPath)) {
+                  const ssr = JSON.parse(
+                    fs.readFileSync(ssrPath).toString()
                   );
 
-                  for (const query of index) {
+                  for (const query of ssr) {
                     if (query.pathname && pathname !== query.pathname) {
                       continue;
                     }
@@ -354,10 +354,10 @@ program
             proxyReqPathResolver: function (req) {
               const { pathname, searchParams } = new URL(`${host}${req.url}`);
 
-              const indexPath = path.join(cwd, pathname, "index.json");
-              if (fs.existsSync(indexPath)) {
-                const index = JSON.parse(fs.readFileSync(indexPath).toString());
-                searchParams.set("index", JSON.stringify(index));
+              const ssrPath = path.join(cwd, pathname, "ssr.json");
+              if (fs.existsSync(ssrPath)) {
+                const ssr = JSON.parse(fs.readFileSync(ssrPath).toString());
+                searchParams.set("ssr", JSON.stringify(ssr));
               }
 
               return `${pathname}?${searchParams.toString()}`;
