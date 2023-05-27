@@ -29,6 +29,8 @@ const { version } = JSON.parse(
   fs.readFileSync(path.join(cwd, "package.json")).toString()
 );
 
+const timeout = 2000;
+
 program
   .version(version)
   .description(
@@ -54,6 +56,7 @@ program
         app.use(
           "/",
           proxy(`https://dev--${subdomain}.doc2.live`, {
+            timeout,
             userResDecorator: async function (proxyRes, proxyResData) {
               if (
                 String(proxyRes.headers["content-type"]).includes("text/html")
@@ -351,6 +354,7 @@ program
         app.use(
           "/",
           proxy(`https://dev--${subdomain}.doc2.email`, {
+            timeout,
             proxyReqPathResolver: function (req) {
               const { pathname, searchParams } = new URL(`${host}${req.url}`);
 
